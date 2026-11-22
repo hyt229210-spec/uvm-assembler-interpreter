@@ -6,6 +6,8 @@ from pathlib import Path
 
 FIELD_A_BITS = 7
 MEMORY_SIZE = 1 << 22
+WORD_BITS = 32
+WORD_MASK = (1 << WORD_BITS) - 1
 
 INSTRUCTION_SET = {
     6: {
@@ -122,9 +124,19 @@ class VirtualMachine:
                 self.data_memory[operand] = self.accumulator
 
             elif name == "ror":
-                raise VirtualMachineError(
-                    "ROR operation will be implemented in stage 4."
+                self.check_address(operand)
+
+                shift = (
+                    self.data_memory.get(operand, 0)
+                    % WORD_BITS
                 )
+
+                value = self.accumulator & WORD_MASK
+
+                self.accumulator = (
+                    (value >> shift)
+                    | (value << (WORD_BITS - shift))
+                ) & WORD_MASK
 
             else:
                 raise VirtualMachineError(
