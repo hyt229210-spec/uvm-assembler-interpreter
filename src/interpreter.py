@@ -18,12 +18,11 @@ except ImportError:
     )
 
 
-def main():
-    """Run the virtual machine interpreter."""
+def create_argument_parser():
+    """Create the command-line argument parser."""
     parser = argparse.ArgumentParser(
         description="Educational virtual machine interpreter."
     )
-
     parser.add_argument(
         "input",
         type=Path,
@@ -44,22 +43,33 @@ def main():
         type=int,
         help="Last memory address to display",
     )
+    return parser
 
+
+def execute_program(args):
+    """Load and execute a binary program."""
+    machine_code = args.input.read_bytes()
+    instructions = decode_program(machine_code)
+
+    machine = VirtualMachine(instructions)
+    machine.execute()
+
+    machine.save_memory_dump(
+        args.dump,
+        args.start,
+        args.end,
+    )
+
+    return instructions, machine
+
+
+def main():
+    """Run the virtual machine interpreter."""
+    parser = create_argument_parser()
     args = parser.parse_args()
 
     try:
-        machine_code = args.input.read_bytes()
-        instructions = decode_program(machine_code)
-
-        machine = VirtualMachine(instructions)
-        machine.execute()
-
-        machine.save_memory_dump(
-            args.dump,
-            args.start,
-            args.end,
-        )
-
+        instructions, machine = execute_program(args)
     except (OSError, VirtualMachineError) as error:
         print(f"Interpreter error: {error}", file=sys.stderr)
         return 1

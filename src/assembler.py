@@ -12,6 +12,8 @@ except ImportError:
     from encoder import encode_instruction, encode_program
 
 
+MIN_OPERAND = 0
+
 COMMANDS = {
     "load_const": {
         "opcode": 6,
@@ -59,6 +61,22 @@ def read_yaml(path: Path):
         ) from error
 
 
+def validate_operand(value, definition, index):
+    """Check the type and range of an instruction operand."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise AssemblyError(
+            f"Command {index}: operand must be an integer."
+        )
+
+    maximum = (1 << definition["bits"]) - 1
+
+    if value < MIN_OPERAND or value > maximum:
+        raise AssemblyError(
+            f"Command {index}: value must be from "
+            f"{MIN_OPERAND} to {maximum}."
+        )
+
+
 def translate_command(command, index):
     """Translate one YAML command into an intermediate form."""
     if not isinstance(command, dict):
@@ -84,18 +102,7 @@ def translate_command(command, index):
         )
 
     value = command[operand_name]
-
-    if isinstance(value, bool) or not isinstance(value, int):
-        raise AssemblyError(
-            f"Command {index}: operand must be an integer."
-        )
-
-    maximum = (1 << definition["bits"]) - 1
-
-    if value < 0 or value > maximum:
-        raise AssemblyError(
-            f"Command {index}: value must be from 0 to {maximum}."
-        )
+    validate_operand(value, definition, index)
 
     return {
         "name": name,
@@ -106,7 +113,7 @@ def translate_command(command, index):
 
 
 def translate_program(document):
-    """Translate a complete YAML document into an instruction list."""
+    """Translate a complete YAML document into instructions."""
     if not isinstance(document, dict) or set(document) != {"program"}:
         raise AssemblyError(
             "The YAML document must contain only the 'program' field."
@@ -168,13 +175,8 @@ def main():
         document = read_yaml(args.input)
         program = translate_program(document)
         machine_code = encode_program(program)
-
-        args.output.parent.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_bytes(machine_code)
-
     except (AssemblyError, OSError, ValueError) as error:
         print(f"Assembly error: {error}", file=sys.stderr)
         return 1
@@ -187,7 +189,6 @@ def main():
         print_machine_code(program)
 
     print(f"Output file: {args.output}")
-
     return 0
 
 

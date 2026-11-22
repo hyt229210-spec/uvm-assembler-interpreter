@@ -1,4 +1,4 @@
-"""Integration test for the final vector task."""
+"""Integration tests for the final vector task."""
 
 import unittest
 from pathlib import Path
@@ -8,18 +8,32 @@ from src.encoder import encode_program
 from src.virtual_machine import VirtualMachine, decode_program
 
 
+def load_vector_program():
+    """Load and decode the vector example."""
+    root = Path(__file__).resolve().parents[1]
+    source = root / "examples" / "vector_ror.yaml"
+
+    document = read_yaml(source)
+    program = translate_program(document)
+    machine_code = encode_program(program)
+
+    return machine_code, decode_program(machine_code)
+
+
+def read_vector(memory, start):
+    """Read five consecutive memory cells."""
+    return [
+        memory[address]
+        for address in range(start, start + 5)
+    ]
+
+
 class TestVectorProgram(unittest.TestCase):
     """Test rotation of two five-element vectors."""
 
     def test_five_element_vector_rotation(self):
         """Check all five results of the vector program."""
-        root = Path(__file__).resolve().parents[1]
-        source = root / "examples" / "vector_ror.yaml"
-
-        document = read_yaml(source)
-        program = translate_program(document)
-        machine_code = encode_program(program)
-        instructions = decode_program(machine_code)
+        machine_code, instructions = load_vector_program()
 
         self.assertEqual(len(instructions), 40)
         self.assertEqual(len(machine_code), 165)
@@ -43,15 +57,8 @@ class TestVectorProgram(unittest.TestCase):
             2046978803,
         ]
 
-        source_values = [
-            machine.data_memory[address]
-            for address in range(100, 105)
-        ]
-
-        result_values = [
-            machine.data_memory[address]
-            for address in range(200, 205)
-        ]
+        source_values = read_vector(machine.data_memory, 100)
+        result_values = read_vector(machine.data_memory, 200)
 
         self.assertEqual(source_values, expected_source)
         self.assertEqual(result_values, expected_results)
