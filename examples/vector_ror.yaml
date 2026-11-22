@@ -1,0 +1,110 @@
+program:
+  # Заполняем первый вектор: адреса 100–104
+
+  - command: load_const
+    value: 1193046
+  - command: store
+    address: 100
+
+  - command: load_const
+    value: 11259375
+  - command: store
+    address: 101
+
+  - command: load_const
+    value: 129
+  - command: store
+    address: 102
+
+  - command: load_const
+    value: 67108863
+  - command: store
+    address: 103
+
+  - command: load_const
+    value: 20281789
+  - command: store
+    address: 104
+
+  # Заполняем второй вектор величинами сдвига:
+  # адреса 200–204
+
+  - command: load_const
+    value: 8
+  - command: store
+    address: 200
+
+  - command: load_const
+    value: 4
+  - command: store
+    address: 201
+
+  - command: load_const
+    value: 1
+  - command: store
+    address: 202
+
+  - command: load_const
+    value: 16
+  - command: store
+    address: 203
+
+  - command: load_const
+    value: 7
+  - command: store
+    address: 204
+
+  # Обрабатываем первую пару
+
+  - command: load_const
+    value: 100
+  - command: load
+    offset: 0
+  - command: ror
+    address: 200
+  - command: store
+    address: 200
+
+  # Обрабатываем вторую пару
+
+  - command: load_const
+    value: 101
+  - command: load
+    offset: 0
+  - command: ror
+    address: 201
+  - command: store
+    address: 201
+
+  # Обрабатываем третью пару
+
+  - command: load_const
+    value: 102
+  - command: load
+    offset: 0
+  - command: ror
+    address: 202
+  - command: store
+    address: 202
+
+  # Обрабатываем четвёртую пару
+
+  - command: load_const
+    value: 103
+  - command: load
+    offset: 0
+  - command: ror
+    address: 203
+  - command: store
+    address: 203
+
+  # Обрабатываем пятую пару
+
+  - command: load_const
+    value: 104
+  - command: load
+    offset: 0
+  - command: ror
+    address: 204
+  - command: store
+    address: 204

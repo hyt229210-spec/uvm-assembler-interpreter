@@ -1,0 +1,13 @@
+program:
+  - command: load_const
+    value: 8
+  - command: store
+    address: 10
+
+  - command: load_const
+    value: 466
+  - command: ror
+    address: 10
+
+  - command: store
+    address: 20
