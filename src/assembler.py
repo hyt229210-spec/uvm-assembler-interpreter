@@ -6,6 +6,11 @@ from pathlib import Path
 
 import yaml
 
+try:
+    from .encoder import encode_instruction, encode_program
+except ImportError:
+    from encoder import encode_instruction, encode_program
+
 
 COMMANDS = {
     "load_const": {
@@ -132,6 +137,18 @@ def print_representation(program):
         )
 
 
+def print_machine_code(program):
+    """Print machine code in hexadecimal format."""
+    print("\nMachine code:")
+
+    for index, instruction in enumerate(program, start=1):
+        encoded = encode_instruction(instruction)
+        byte_values = ", ".join(
+            f"0x{byte:02X}" for byte in encoded
+        )
+        print(f"{index}. {instruction['name']}: {byte_values}")
+
+
 def main():
     """Run the assembler command-line application."""
     parser = argparse.ArgumentParser(
@@ -142,7 +159,7 @@ def main():
     parser.add_argument(
         "--test",
         action="store_true",
-        help="Print intermediate representation",
+        help="Print intermediate representation and machine code",
     )
 
     args = parser.parse_args()
@@ -150,17 +167,26 @@ def main():
     try:
         document = read_yaml(args.input)
         program = translate_program(document)
-    except AssemblyError as error:
+        machine_code = encode_program(program)
+
+        args.output.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        args.output.write_bytes(machine_code)
+
+    except (AssemblyError, OSError, ValueError) as error:
         print(f"Assembly error: {error}", file=sys.stderr)
         return 1
 
+    print(f"Assembled commands: {len(program)}")
+    print(f"Binary file size: {len(machine_code)} bytes")
+
     if args.test:
         print_representation(program)
-    else:
-        print(f"Successfully translated {len(program)} commands.")
-        print(
-            f"Output path reserved for stage 2: {args.output}"
-        )
+        print_machine_code(program)
+
+    print(f"Output file: {args.output}")
 
     return 0
 
