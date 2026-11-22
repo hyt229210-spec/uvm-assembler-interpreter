@@ -1,0 +1,12 @@
+program:
+  - command: load_const
+    value: 466
+
+  - command: load
+    offset: 53
+
+  - command: store
+    address: 586
+
+  - command: ror
+    address: 683
