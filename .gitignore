@@ -30,3 +30,6 @@ Thumbs.db
 
 # Generated machine code
 *.bin
+
+# Generated memory dumps
+memory_dump*.json

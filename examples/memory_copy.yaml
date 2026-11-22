@@ -1,0 +1,53 @@
+program:
+  # Заполняем исходный массив
+
+  - command: load_const
+    value: 10
+
+  - command: store
+    address: 100
+
+  - command: load_const
+    value: 20
+
+  - command: store
+    address: 101
+
+  - command: load_const
+    value: 30
+
+  - command: store
+    address: 102
+
+  # Копируем первый элемент
+
+  - command: load_const
+    value: 100
+
+  - command: load
+    offset: 0
+
+  - command: store
+    address: 200
+
+  # Копируем второй элемент
+
+  - command: load_const
+    value: 101
+
+  - command: load
+    offset: 0
+
+  - command: store
+    address: 201
+
+  # Копируем третий элемент
+
+  - command: load_const
+    value: 102
+
+  - command: load
+    offset: 0
+
+  - command: store
+    address: 202
